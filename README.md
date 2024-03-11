@@ -1,6 +1,4 @@
-Sure! Here's the description for your project in English:
 
----
 
 # Project Description
 
