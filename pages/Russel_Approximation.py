@@ -4,10 +4,11 @@ from TransMethod import TransportationProblem
 
 st.sidebar.title("Transportation Calculator Sidebar")
 st.sidebar.markdown('---')
-st.sidebar.subheader('Monalisha')
+st.sidebar.subheader('Russel Approximation')
 st.sidebar.markdown('---')
+
 def main():
-    st.title("Menggunakan Metode Monalisha ")
+    st.title("Menggunakan Metode Russel Approximation")
     st.subheader("Created by Ahmad Hanafi Prasetyo")
 
     st.markdown("**Masukan Dimensi Supply dan Demand**")
@@ -34,13 +35,14 @@ def main():
         cost_row = [int(x) for x in cost_row]  # Konversi angka dari string ke integer
         input_table.append(cost_row)
 
+
     if st.button("Hitung"):
         supply = np.array(matrix_supply)
         demand = np.array(matrix_demand)
         costs = np.array(input_table)
         solver = TransportationProblem(supply, demand, costs)
-        num_all = solver.monalisha_method()[0]
-        total_cost = solver.monalisha_method()[1]
+        num_all = solver.solve_with_russel_approximation()[0]
+        total_cost = solver.solve_with_russel_approximation()[1]
         st.write("List Allocation Matrices:")
         for k, allocation in enumerate(num_all):
             allocation = np.array(allocation, dtype=np.str_)

@@ -1,78 +1,11 @@
 import streamlit as st
 import numpy as np
+from TransMethod import TransportationProblem
 
-
-def north_west_corner(matrix_supply, matrix_demand, costs):
-    supply = np.array(matrix_supply)
-    demand = np.array(matrix_demand)
-    costs = np.array(costs)
-
-    m, n = len(supply), len(demand)
-    allocation = np.zeros((m, n))
-
-    row, col = 0, 0
-    total_cost = 0  # Inisialisasi total biaya
-
-    while row < m and col < n:
-        if supply[row] > 0 and demand[col] > 0:
-            quantity = min(supply[row], demand[col])
-            allocation[row, col] = quantity
-            supply[row] -= quantity
-            demand[col] -= quantity
-            total_cost += quantity * costs[row, col]  # Menghitung total biaya
-            if supply[row] == 0:
-                row += 1
-            if demand[col] == 0:
-                col += 1
-        else:
-            if supply[row] == 0:
-                row += 1
-            if demand[col] == 0:
-                col += 1
-
-    return allocation, total_cost
-
-
-def north_west_corner_A(matrix_supply, matrix_demand, costs):
-    num_all = []  # List untuk menyimpan semua alokasi
-
-    supply = np.array(matrix_supply)
-    demand = np.array(matrix_demand)
-    costs = np.array(costs)
-
-    m, n = len(supply), len(demand)
-    allocation = np.zeros((m, n))
-
-    row, col = 0, 0
-    total_cost = 0  # Inisialisasi total biaya
-
-    print("Iterasi | Allocation Matrix")
-    print("-----------------------------")
-    while row < m and col < n:
-        if supply[row] > 0 and demand[col] > 0:
-            quantity = min(supply[row], demand[col])
-            allocation[row, col] = quantity
-            supply[row] -= quantity
-            demand[col] -= quantity
-            total_cost += quantity * costs[row, col]  # Menghitung total biaya
-            if supply[row] == 0:
-                row += 1
-            if demand[col] == 0:
-                col += 1
-
-            print(f"   {row+1},{col+1}   | {allocation}")
-
-            # Menambahkan alokasi ke dalam list num_all
-            num_all.append(allocation.copy())  # Menggunakan copy() untuk mencegah referensi yang sama
-        else:
-            if supply[row] == 0:
-                row += 1
-            if demand[col] == 0:
-                col += 1
-
-    print("-----------------------------")
-
-    return num_all, total_cost
+st.sidebar.title("Transportation Calculator Sidebar")
+st.sidebar.markdown('---')
+st.sidebar.subheader(' North West Corner')
+st.sidebar.markdown('---')
 
 def main():
     st.title("Menggunakan Metode North West Corner")
@@ -102,14 +35,19 @@ def main():
         cost_row = [int(x) for x in cost_row]  # Konversi angka dari string ke integer
         input_table.append(cost_row)
 
-    # print("\nList of Allocation Matrices:")
-    # for i, allocation in enumerate(num_all):
-    #     print(f"Allocation Matrix {i+1}:")
-    #     print(allocation)
-    # print("Total Cost:", total_cost)
+    history = {
+        'supply': matrix_supply,
+        'demand': matrix_demand,
+        'costs': input_table
+    }
+
     if st.button("Hitung"):
-        #allocation, total_cost = north_west_corner(matrix_supply, matrix_demand, input_table)
-        num_all, total_cost = north_west_corner_A(matrix_supply, matrix_demand, input_table)
+        supply = np.array(matrix_supply)
+        demand = np.array(matrix_demand)
+        costs = np.array(input_table)
+        solver = TransportationProblem(supply, demand, costs)
+        num_all = solver.solve_with_north_west_corner()[0]
+        total_cost = solver.solve_with_north_west_corner()[1]
         st.write("List Allocation Matrices:")
         for k, allocation in enumerate(num_all):
             allocation = np.array(allocation, dtype=np.str_)
@@ -127,6 +65,13 @@ def main():
             st.write(allocation_html, unsafe_allow_html=True)
         
         st.markdown(f" **Total Cost** : {total_cost}")
+
+        # Tampilkan riwayat
+        st.subheader("Riwayat")
+        history_selection = st.selectbox("Pilih Riwayat Input:", list(range(1, len(history['supply'])+1)))
+        st.write("Dimensi Supply:", history['supply'][history_selection-1])
+        st.write("Dimensi Demand:", history['demand'][history_selection-1])
+        st.write("Biaya:", history['costs'][history_selection-1])
 
 if __name__ == "__main__":
     main()

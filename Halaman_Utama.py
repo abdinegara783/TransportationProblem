@@ -1,6 +1,7 @@
 import streamlit as st
 
-
+st.sidebar.title("Transportation Calculator Sidebar")
+st.sidebar.subheader('Metode')
 # Membuat dropdown menu dengan beberapa pilihan
 option = st.selectbox(
     'Pilih sebuah opsi',
